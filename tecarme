@@ -1,0 +1,321 @@
+import java.util.Iterator;
+import java.util.ArrayList;
+
+import net.minecraft.entity.passive.*;
+import net.minecraft.client.model.*;
+import net.minecraft.entity.boss.*;
+import net.minecraft.creativetab.*;
+import net.minecraft.world.chunk.storage.*;
+
+import net.minecraftforge.fml.common.network.*;
+
+import net.minecraft.server.management.*;
+import net.minecraft.client.particle.*;
+
+import net.minecraftforge.client.model.obj.*;
+import net.minecraftforge.oredict.*;
+
+import net.minecraft.client.settings.*;
+
+import net.minecraftforge.fml.common.eventhandler.*;
+
+import net.minecraft.client.entity.*;
+
+import net.minecraftforge.fml.relauncher.*;
+import net.minecraftforge.fml.server.*;
+
+import net.minecraft.block.state.pattern.*;
+import net.minecraft.network.*;
+import net.minecraft.client.renderer.tileentity.*;
+import net.minecraft.crash.*;
+import net.minecraft.stats.*;
+import net.minecraft.world.gen.structure.template.*;
+import net.minecraft.tileentity.*;
+
+import net.minecraftforge.fml.client.registry.*;
+
+import net.minecraft.world.gen.*;
+
+import net.minecraftforge.fml.common.asm.transformers.*;
+
+import net.minecraft.enchantment.*;
+
+import net.minecraftforge.event.entity.*;
+import net.minecraftforge.fml.common.discovery.*;
+
+import net.minecraft.command.*;
+import net.minecraft.dispenser.*;
+
+import net.minecraftforge.event.entity.item.*;
+
+import net.minecraft.client.gui.*;
+import net.minecraft.server.*;
+import net.minecraft.advancements.critereon.*;
+import net.minecraft.block.*;
+import net.minecraft.entity.*;
+import net.minecraft.client.renderer.entity.*;
+import net.minecraft.entity.ai.*;
+import net.minecraft.inventory.*;
+
+import net.minecraftforge.items.*;
+
+import net.minecraft.world.gen.layer.*;
+
+import net.minecraftforge.event.terraingen.*;
+import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.fml.common.*;
+
+import net.minecraft.pathfinding.*;
+
+import net.minecraftforge.event.entity.player.*;
+import net.minecraftforge.fml.common.toposort.*;
+
+import net.minecraft.client.util.*;
+
+import net.minecraftforge.client.event.sound.*;
+import net.minecraftforge.client.model.*;
+
+import net.minecraft.server.gui.*;
+
+import net.minecraftforge.client.event.*;
+
+import net.minecraft.util.*;
+
+import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.event.world.*;
+
+import net.minecraft.client.renderer.block.statemap.*;
+
+import net.minecraftforge.fml.common.discovery.asm.*;
+
+import net.minecraft.item.crafting.*;
+import net.minecraft.entity.effect.*;
+import net.minecraft.client.gui.achievement.*;
+
+import net.minecraftforge.event.entity.minecart.*;
+
+import net.minecraft.client.renderer.culling.*;
+
+import net.minecraftforge.fml.common.versioning.*;
+
+import net.minecraft.entity.projectile.*;
+
+import net.minecraftforge.common.*;
+
+import net.minecraft.util.math.*;
+import net.minecraft.entity.item.*;
+import net.minecraft.item.*;
+
+import net.minecraftforge.fml.client.*;
+import net.minecraftforge.fluids.*;
+
+import net.minecraft.init.*;
+import net.minecraft.advancements.*;
+import net.minecraft.client.audio.*;
+import net.minecraft.world.gen.feature.*;
+
+import net.minecraftforge.fml.common.asm.*;
+
+import net.minecraft.block.state.*;
+import net.minecraft.client.renderer.*;
+import net.minecraft.util.text.*;
+import net.minecraft.entity.player.*;
+
+import net.minecraftforge.fml.common.gameevent.*;
+
+import net.minecraft.world.storage.*;
+import net.minecraft.world.biome.*;
+import net.minecraft.client.*;
+
+import net.minecraftforge.common.util.*;
+
+import net.minecraft.network.rcon.*;
+import net.minecraft.profiler.*;
+
+import net.minecraftforge.classloading.*;
+
+import net.minecraft.village.*;
+import net.minecraft.potion.*;
+import net.minecraft.block.material.*;
+import net.minecraft.world.*;
+import net.minecraft.nbt.*;
+import net.minecraft.world.gen.structure.*;
+import net.minecraft.client.gui.inventory.*;
+import net.minecraft.server.integrated.*;
+import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.block.properties.*;
+import net.minecraft.entity.ai.attributes.*;
+
+import net.minecraftforge.client.*;
+import net.minecraftforge.fml.common.registry.*;
+
+import net.minecraft.world.chunk.*;
+import net.minecraft.client.multiplayer.*;
+import net.minecraft.entity.monster.*;
+
+import net.minecraftforge.event.*;
+
+import net.minecraft.server.dedicated.*;
+
+public class Screamingnpc extends tek.ModElement {
+
+	public static final int ENTITYID = 1;
+	public static final int ENTITYID_RANGED = 2;
+
+	public Screamingnpc(tek instance) {
+		super(instance);
+		instance.entities.add(() -> EntityEntryBuilder.create().entity(EntityCustom.class).id(new ResourceLocation("tek", "screamingnpc"), ENTITYID)
+				.name("screamingnpc").tracker(64, 1, true).egg(-16776961, -16777165).build());
+	}
+
+	@Override
+	public void init(FMLInitializationEvent event) {
+		Biome[] spawnBiomes = allbiomes(Biome.REGISTRY);
+		EntityRegistry.addSpawn(EntityCustom.class, 20, 3, 30, EnumCreatureType.MONSTER, spawnBiomes);
+		DungeonHooks.addDungeonMob(new ResourceLocation("tek:screamingnpc"), 180);
+	}
+
+	private Biome[] allbiomes(net.minecraft.util.registry.RegistryNamespaced<ResourceLocation, Biome> in) {
+		Iterator<Biome> itr = in.iterator();
+		ArrayList<Biome> ls = new ArrayList<Biome>();
+		while (itr.hasNext())
+			ls.add(itr.next());
+		return ls.toArray(new Biome[ls.size()]);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void preInit(FMLPreInitializationEvent event) {
+		RenderingRegistry.registerEntityRenderingHandler(EntityCustom.class, renderManager -> {
+			RenderBiped customRender = new RenderBiped(renderManager, new ModelBiped(), 0.5f) {
+
+				protected ResourceLocation getEntityTexture(Entity entity) {
+					return new ResourceLocation("tek:textures/my_skin.png");
+				}
+			};
+			customRender.addLayer(new net.minecraft.client.renderer.entity.layers.LayerHeldItem(customRender));
+			customRender.addLayer(new net.minecraft.client.renderer.entity.layers.LayerBipedArmor(customRender) {
+
+				protected void initArmor() {
+					this.modelLeggings = new ModelBiped();
+					this.modelArmor = new ModelBiped();
+				}
+			});
+			return customRender;
+		});
+	}
+
+	public static class EntityCustom extends EntityCreature {
+
+		public EntityCustom(World world) {
+			super(world);
+			setSize(0.6f, 1.9f);
+			experienceValue = 11;
+			this.isImmuneToFire = false;
+			setNoAI(!true);
+			this.tasks.addTask(1, new EntityAIWander(this, 6));
+			this.tasks.addTask(2, new EntityAILookIdle(this));
+			this.tasks.addTask(3, new EntityAISwimming(this));
+			this.tasks.addTask(4, new EntityAILeapAtTarget(this, (float) 0.8));
+			this.tasks.addTask(5, new EntityAIPanic(this, 1.2));
+			this.targetTasks.addTask(6, new EntityAIHurtByTarget(this, false));
+		}
+
+		@Override
+		public EnumCreatureAttribute getCreatureAttribute() {
+			return EnumCreatureAttribute.UNDEFINED;
+		}
+
+		@Override
+		protected Item getDropItem() {
+			return null;
+		}
+
+		@Override
+		public net.minecraft.util.SoundEvent getAmbientSound() {
+			return (net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY.getObject(new ResourceLocation(""));
+		}
+
+		@Override
+		public net.minecraft.util.SoundEvent getHurtSound(DamageSource ds) {
+			return (net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY.getObject(new ResourceLocation(""));
+		}
+
+		@Override
+		public net.minecraft.util.SoundEvent getDeathSound() {
+			return (net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY.getObject(new ResourceLocation(""));
+		}
+
+		@Override
+		protected float getSoundVolume() {
+			return 1.0F;
+		}
+
+		@Override
+		public boolean attackEntityFrom(DamageSource source, float amount) {
+			if (source == DamageSource.CACTUS)
+				return false;
+			return super.attackEntityFrom(source, amount);
+		}
+
+		@Override
+		public boolean processInteract(EntityPlayer entity, EnumHand hand) {
+			super.processInteract(entity, hand);
+			entity.startRiding(this);
+			int x = (int) this.posX;
+			int y = (int) this.posY;
+			int z = (int) this.posZ;
+			ItemStack itemstack = entity.getHeldItem(hand);
+			return true;
+		}
+
+		@Override
+		protected void applyEntityAttributes() {
+			super.applyEntityAttributes();
+			if (this.getEntityAttribute(SharedMonsterAttributes.ARMOR) != null)
+				this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(0D);
+			if (this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED) != null)
+				this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3D);
+			if (this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH) != null)
+				this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(23D);
+			if (this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE) != null)
+				this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(3D);
+		}
+
+		@Override
+		public void travel(float ti, float tj, float tk) {
+			Entity entity = this.getPassengers().isEmpty() ? null : (Entity) this.getPassengers().get(0);
+			if (this.isBeingRidden() && this.canBeSteered()) {
+				this.rotationYaw = entity.rotationYaw;
+				this.prevRotationYaw = this.rotationYaw;
+				this.rotationPitch = entity.rotationPitch * 0.5F;
+				this.setRotation(this.rotationYaw, this.rotationPitch);
+				this.renderYawOffset = this.rotationYaw;
+				this.rotationYawHead = this.rotationYaw;
+				this.stepHeight = 1.0F;
+				this.jumpMovementFactor = this.getAIMoveSpeed() * 0.1F;
+				if (this.canPassengerSteer()) {
+					float f = (float) this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 0.225F;
+					this.setAIMoveSpeed(f);
+					super.travel(0.0F, 0.0F, 1.0F);
+				} else {
+					this.motionX = 0.0D;
+					this.motionY = 0.0D;
+					this.motionZ = 0.0D;
+				}
+				this.prevLimbSwingAmount = this.limbSwingAmount;
+				double d1 = this.posX - this.prevPosX;
+				double d0 = this.posZ - this.prevPosZ;
+				float f1 = MathHelper.sqrt(d1 * d1 + d0 * d0) * 4.0F;
+				if (f1 > 1.0F)
+					f1 = 1.0F;
+				this.limbSwingAmount += (f1 - this.limbSwingAmount) * 0.4F;
+				this.limbSwing += this.limbSwingAmount;
+			} else {
+				this.stepHeight = 0.5F;
+				this.jumpMovementFactor = 0.02F;
+				super.travel(ti, tj, tk);
+			}
+		}
+	}
+}
